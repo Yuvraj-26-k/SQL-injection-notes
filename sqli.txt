@@ -1,0 +1,222 @@
+Q) What is Sql ?
+A) Sql(structure query language) is database that store,create,delete or update data.
+
+website example:-                         +----------+
+                                          |          |
+                   HTML-->   {Query} -->  | Database |
+                {Login page}              |  (SQL)   |
+                                          |          |
+                                          +----------+          
+                                                    
+                                         
+Q) What is sql injection ?
+A) Sql injection is vulnerability where attacker manipulates the database queries using user input.
+   instead of putting user credeitanials he load payload (malicious code).
+-----------------------------------------------------------------------------------------------
+$Real world impact:-
+1.login bypass 
+2.Full database dump
+3.Admin access
+4.password leaks
+5.data deletion
+
+SQLi is one of the oldest but deadliest vulnerability in bug bounty.
+
+-----------------------------------------------------------------------------------------------
+
+$ Why sql injection exist ?
+-> Root cause ?
+* Developers write SQL queries by directly concatenating user input.
+
+----------------------------------------------------------------------------------------------
+* Common Developer  Mistakes:-
+-> user only input number.
+-> user only input exact username.
+-> frontend validation is enough!
+-> Attacker never understand query.
+----------------------------------------------------------------------------------------------
+* Core issue:-
+->Vulnerable code(PHP+MySql)
+#query
+-> Select * from user where username='$hero' and password='$password';
+#practice of sql query:-
+-> Select * from users where first_name='Hack';
+------------------------------------------------------------------------------------------
+#Types of Sql injection.
+->classic sql injection.
+.Vulnerable query
+-> select * from users where id = '$id';
+#payload:-
+1' OR '1'='1                 {Here 1' means select*from users where id = 1' or '1'='1 this condition also -- means comment/ neglect after that what ever written }
+1' OR 1=1 -- (space matters)
+---------------------------------------------------
+$why above payload used ?
+-> so we can get database.
+---------------------------------------------------
+#For extract Data
+#userid:- ' OR 1=1 -- 
+#password:- 123 
+#then click login now authentication pass!
+#again ' OR 1=1 --
+#pass:- 123
+----- boom got login details -----
+So the above payload,injection was level 1>
+
+2)Login bypass(deep/logically):-
+#payload:-
+admin' -- -  (this payload means that just look admin also don't look at password and also 'after admin means it closes before automatiaclly)
+#point to be noted
+it only works for single authentication for admin
+#- - - - - - - - - - - - - - - - - -- - - - - - - - - - - -
+3.UNION based sql injection.
+-> when two query merge is called union query
+#payload:-
+->1' UNION SELECT first_name,password FROM users -- '; (can done in both id & password column and url )
+----------------------------------------
+#4 Blind Sql injection:-(no output shown)
+                             |
+                             |--> Time based.
+                             |---> Boolean based.
+#payload:-
+1' AND sleep(5)-- (sleep(5): This is the command (specifically for the MySQL/MariaDB) that tells the database to pause for 5 second before doing anything else)
+->.This injection not give output just confirms that website is vulnerable.
+
+---------------------------------------------------------------------------
+#>.How to identify the SQLi from frontend:-
+-> First when we get The URL of that website:-
+                          ------------------------------
+                          |    www.example.com         |
+                          |----------------------------|
+                          |                            |
+                          |                            |
+                          |     Website                |
+                          |         Interface          | 
+                          |                            |
+                          |                            |
+                          |                            |
+                          |                            |
+                          |----------------------------|
+                                /                 \
+                               /                   \
+                              /                     \
+                             /                       \ 
+                            /                         \
+                       (static)                     (Dynamic)
+
+# We need to check that Website is static or Dynamic.
+# Static:-
+   It mean it is not integreted with database which directly send email and not store the info>
+#Dynamic:-
+   It means we need to search some clues or ideas-
+
+1.Login form
+2.Search
+3.Filters (For example id=1 & price=100 & brand=sony) -> It can be on url or header / front page.
+4.URL parameters =====================================================/ 
+5.Headers {using burpsuite}
+\_______/
+    |
+   Steps ->  Proxy -> open browser 
+               \
+                \__ Proxy software.
+         Post __/
+          |      
+        (Form related)
+
+#Point to be noted not every request provide response here (means ignore) & some give.
+                              /
+                            Request is divided into two parts.
+{ never directly use injection on website otherwise WAF blockes you }
+-----------------------------------------------------------------------------------------------
+#Basic Payloads to be remember like her:- 
+1. ' \
+2. "  |--> SELECT * FROM USERS WHERE USER=' ' AND PASS=' '; 
+3. ' /                      \
+                            /
+#practical implementation:-/
+-> select * from users where first_name='admin'' AND last_name='admin';
+-> select * from users where first_name='admin'" AND last_name="admin";
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+// this is Syntax error practical.
+But.....
+   ---> select * from users where first_name="admin" AND last_name="admin";
+// this runs                       /
+----------------------------------/
+#Check:-
+1.SQL error
+2.Page crash
+3. different response.
+----------------------
+#Step 3 ( Boolean Testing)
+* Payload:-
+ 1'AND 1=1 -- 
+ 1'AND 1=2 -- 
+
+# Majority mistake every hacker or hunter do is they only use ( 1'AND 1=1 -- ) & neglect ( 1'AND 1=2 --) as it is at last false condition that's why.
+-------------------------------------------
+# Step 4: Time based testing:-
+ * Payload:-
+-> 1' And sleep(5) -- 
+
+#  "this step comes only when you we tried every other method"
+-----------------------------------------------------
+# Code fixes and patches:-
+A. prepared statements
+* PHP 
+  $stmt=$pdo->prepare(
+  "SELECT * FROM users WHERE username=? AND password=?"
+ );
+$stmt->execute([$user,$pass]);
+<------------------------------->
+# Step by Step btreakdown.
+1. The template (prepare) : it means we need to use prepared statement as query and data delivers seperately.In which the case of manipulation becomes zero(naa ke baraabar ho jate hai
+
+* stmt=$pdo->prepare(
+  "SELECT * FROM users WHERE username=? AND password=?"
+ );
+                               
+Here "?" means placeholders.They act as "reserved seats" for data that will arrive later.
+-----------------------------------------------------------------------------------------
+# THE data delivery:-
+
+* $stmt->execute([$user,$pass]);
+
+1.Binding:-THe $user and $pass are sent to the database sperately.
+2.Santitization of database:- THe database treats these values strictly as literal data.If an attacker tries to send 1' AND '1'='1,database won't executes it; it ill simply look for a user whose literal,physical name is the string "1' AND '1".
+
+-----------------------------------------------------------------------------------------------------------------------
+B. ORM / Framework use. means we need to use the secure framework means our development process made on these platforms:-
+
+*Laravel eloquent
+*Django ORM
+*Hibernate 
+
+-----------------------------------------------------------------------------------------
+C. Input validation (secondary)
+
+* if(!ctype_alnum($username))
+    reject();
+
+* ctype_alnum():-This is built-in php function that stands for character type Alpha numeric."Character type Alpha-numeric." it checks if every character is string is either a letter (a-z,A-Z) or a number (0-9).
+* The!(Logical NOT):- This symbol flips the logic. Instead of checking if the name is valid,it says if the username is NOT alphanumeric.."
+* reject():-It is likely a custom function in script that stops the process,logs,an error,or kicks the user to the the login page.
+
+-----------------------------------------------------------------------------------------------------------------
+D. Least privilege Database user:- Means giving least permissions to perform limited actions & never Tick check all option.
+
+* No root database access.
+* Read only where possible.                                         
+
+------------------------------------------------------------------------------------------------------------------
+# Golden rules for SQli(Final):-
+
+* Never use dynamic SQL queries.(means use prepared statements)
+* Always use prepared statements. <-----------/
+* Never trust frontend validation. (like in burpsuie there are option it bypasses ).
+* Hide DB error messages.( Error message are the reason for table,query,users,technlogy ).
+* Think like attacker,code like defender. 
+
+Last thing:- "SQL injection doesn't hack databases 
+                                    Developers give databases away"
+-------------------------------------------------------------------------------------------------------------------
