@@ -1,27 +1,44 @@
-# SQL Injection (SQLi) – Study Notes & Security Concepts
+# SQL Injection Study Notes
 
-Welcome to this repository dedicated to structured learning and documentation of SQL Injection (SQLi), one of the most widely discussed web application security vulnerabilities in cybersecurity.
+**Beginner web-security notes, with examples and defensive reasoning.**
 
-This repository contains educational notes designed to provide a clear understanding of SQL Injection concepts, database interaction fundamentals, common vulnerability patterns, security awareness, and modern defensive practices. The content is intended for learning, academic study, and ethical cybersecurity education.
+The original [sqli.txt](sqli.txt) contains study material on query construction,
+injection categories, lab examples and prepared statements. It is preserved
+unchanged. These are learning notes, not a disclosed vulnerability or a claim
+of professional penetration-testing experience.
 
-SQL Injection occurs when user-controlled input is improperly handled and interpreted as part of a database query. Understanding this vulnerability helps learners recognize insecure coding patterns and appreciate the importance of secure application development.
+## Read or clone
 
-Topics included in this repository may cover:
+Open [the original notes](sqli.txt) on GitHub, or:
 
-- Introduction to SQL Injection (SQLi)
-- Fundamentals of databases and SQL queries
-- How improper input handling creates vulnerabilities
-- Common categories of SQL Injection
-- Authentication and input validation concepts
-- Secure coding practices
-- Parameterized queries and prepared statements
-- Defensive approaches for web applications
-- Database security awareness
-- Learning resources and cybersecurity references
+```sh
+git clone https://github.com/Yuvraj-26-k/SQL-injection-notes.git
+cd SQL-injection-notes
+```
 
-The objective of this repository is to organize notes in a structured and easy-to-understand manner for students, beginners, and technology enthusiasts who want to strengthen their understanding of application security concepts.
+No executable lab, dependency installation or automated testing is included.
+Use only an isolated environment you own or are authorized to assess when
+experimenting with the concepts.
 
-This repository does not promote unauthorized access, exploitation, or harmful activity. The purpose is educational only and focused on responsible learning, ethical conduct, and cybersecurity awareness.
+## Technical review notes
 
-Whether you are beginning your journey into cybersecurity or building stronger knowledge of web application security principles, these notes aim to provide a clean and professional reference for study and revision.
-<---------------------------------------------------------------------------------------------------------->
+Some original wording is informal or oversimplified and remains subject to
+review. SQL is a query language, not a database itself. A delayed response alone
+does not establish SQL injection; control tests and environmental explanation
+are necessary. Correctly parameterized values address a major injection cause,
+but they are not a universal guarantee for every dynamic query construction.
+Input validation is a supporting control rather than a substitute for safe
+query construction.
+
+Study against primary references:
+
+- [OWASP SQL Injection Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html)
+- [OWASP Web Security Testing Guide](https://owasp.org/www-project-web-security-testing-guide/)
+
+## Next steps
+
+Add a versioned local lab, separate observations from assumptions, document
+negative tests and remediation, and link references to individual claims.
+[Cybersecurity Field Notes](https://github.com/Yuvraj-26-k/cybersecurity-field-notes)
+has report templates for that future work. No material or Git history is moved
+or consolidated by this documentation update.
